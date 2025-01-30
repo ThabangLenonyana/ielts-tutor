@@ -10,6 +10,13 @@ def init_session_state():
     if 'audio_capture' not in st.session_state:
         st.session_state.audio_capture = None
 
+    if 'recording_state' not in st.session_state:
+        st.session_state.recording_state = {
+            'active': False,
+            'audio_capture': None,
+            'last_error': None
+        }
+
     # Initialize all required state variables
     if 'practice_active' not in st.session_state:
         st.session_state.practice_active = False
