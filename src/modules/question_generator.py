@@ -3,6 +3,8 @@ from openai import AzureOpenAI
 from dotenv import load_dotenv
 from typing import Dict, Tuple
 
+import streamlit as st
+
 
 class QuestionGenerator():
     """Use Azure AI to generate questions from a given category chosen by the user"""
@@ -11,8 +13,8 @@ class QuestionGenerator():
         load_dotenv()
 
         # Load Azure OpenAI credentials
-        self.api_key = os.getenv('AZURE_API_KEY')
-        self.endpoint = os.getenv('MODEL_URI')
+        self.api_key = st.secrets['AZURE_API_KEY']
+        self.endpoint = st.secrets['MODEL_URI']
 
         if not self.api_key or not self.endpoint:
             raise ValueError(

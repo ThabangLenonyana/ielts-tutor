@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from typing import Tuple, Optional
 import numpy as np
+import streamlit as st
 
 
 class SpeechToText:
@@ -11,8 +12,8 @@ class SpeechToText:
     def __init__(self):
         load_dotenv()
 
-        self.speech_key = os.getenv('SPEECH_API_KEY')
-        self.speech_region = os.getenv('SPEECH_REGION')
+        self.speech_key = st.secrets['SPEECH_API_KEY']
+        self.speech_region = st.secrets['SPEECH_REGION']
 
         if not self.speech_key or not self.speech_region:
             raise ValueError(
