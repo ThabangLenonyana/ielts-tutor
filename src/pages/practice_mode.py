@@ -1,9 +1,24 @@
 import streamlit as st
+from streamlit.components.v1 import components
 from components.practice.session_state import init_session_state
 from components.practice.topic_selector import render_topic_selector
 from components.practice.recording_interface import render_recording_interface
 from components.practice.chat_interface import render_chat_interface
-from components.practice.feedback_display import render_feedback
+from components.practice.feedback_display import render_feedback_modal
+
+
+@st.dialog("Response Feedback", width='large')
+def show_feedback_dialog():
+    """Dialog function to display feedback"""
+    if st.session_state.feedback:
+        render_feedback_modal(st.session_state.feedback)
+
+        # Clear the modal trigger if dialog is manually closed
+        if not st.session_state.get('show_feedback_modal'):
+            st.session_state.feedback = None
+            st.session_state.evaluation_complete = False
+            st.session_state.is_recording = False
+            st.rerun()
 
 
 def render_practice_mode():
@@ -19,10 +34,9 @@ def render_practice_mode():
         render_chat_interface()
         render_recording_interface()
 
-        st.divider()
-
-        if st.session_state.feedback:
-            render_feedback(st.session_state.feedback)
+        # Show feedback modal if triggered
+        if st.session_state.get('show_feedback_modal'):
+            show_feedback_dialog()
 
 
 def end_practice_session() -> None:

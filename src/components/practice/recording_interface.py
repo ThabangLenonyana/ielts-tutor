@@ -16,6 +16,8 @@ def init_recording_state():
         st.session_state.processing_state = None
     if 'practice_manager' not in st.session_state:
         st.session_state.practice_manager = PracticeModeManager()
+    if 'show_feedback_modal' not in st.session_state:
+        st.session_state.show_feedback_modal = False
 
 
 def render_recording_interface():
@@ -40,9 +42,6 @@ def render_recording_interface():
 
 def handle_start_recording():
     """Start audio recording and update UI state"""
-
-    # st.session_state.is_recording = True
-    # st.rerun()
 
     try:
         audio_capture = AudioCapture()
@@ -78,20 +77,15 @@ def handle_stop_recording():
             return
 
         # Stop recording and get audio data
-        st.warning("DEBUG: Stopping audio capture")
         st.session_state.audio_capture.stop()
         audio_data = st.session_state.audio_capture.get_audio_data()
-        st.warning(
-            f"DEBUG: Audio data shape: {audio_data.shape if audio_data is not None else 'None'}")
 
         # Clean up recording state
 
         cleanup_recording_state()
-        st.warning("DEBUG: Recording state cleaned up")
 
         if audio_data is not None and len(audio_data) > 0:
             st.session_state.processing_state = "Processing audio..."
-            st.warning("DEBUG: Starting audio processing")
 
             process_recorded_audio(audio_data)
             st.rerun()  # Rerun to show processing state
@@ -110,15 +104,15 @@ def process_recorded_audio(audio_data):
     try:
         st.session_state.processing_state = "Processing audio..."
 
-        success, result = st.session_state.practice_manager.handle_response(
-            audio_data)
-        st.warning(f"DEBUG: Transcription: {result['transcription'][:50]}...")
+        with st.spinner("Processing audio..."):
+            success, result = st.session_state.practice_manager.handle_response(
+                audio_data)
 
         if success and result and 'transcription' in result:
             st.session_state.feedback = result['evaluation']
             st.session_state.transcription = result['transcription']
-            update_conversation_history(result['transcription'])
-            st.warning("DEBUG: Conversation history updated")
+            st.session_state.evaluation_complete = True
+            st.session_state.show_feedback_modal = True
         else:
             st.error(
                 f"Failed to process audio: {result.get('error', 'Unknown error')}")
@@ -127,9 +121,8 @@ def process_recorded_audio(audio_data):
         st.error(f"Error processing audio: {str(e)}")
     finally:
         st.session_state.processing_state = None
-        st.warning("DEBUG: Processing complete, triggering rerun")
 
-    # st.rerun()  # Rerun after processing is complete
+    st.rerun()  # Rerun after processing is complete
 
 
 def cleanup_recording_state():

@@ -41,3 +41,12 @@ def init_session_state():
 
     if 'last_response' not in st.session_state:
         st.session_state.last_response = None
+
+    if 'show_feedback_modal' not in st.session_state:
+        st.session_state.show_feedback_modal = False
+
+    if 'evaluation_complete' not in st.session_state:
+        st.session_state.evaluation_complete = False
+
+    if 'is_recording' not in st.session_state:
+        st.session_state.is_recording = False
