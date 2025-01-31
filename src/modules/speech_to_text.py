@@ -1,6 +1,5 @@
 import azure.cognitiveservices.speech as speechsdk
 import os
-from dotenv import load_dotenv
 from typing import Tuple, Optional
 import numpy as np
 import streamlit as st
@@ -10,14 +9,9 @@ class SpeechToText:
     """Handles speech-to-text conversion using Azure Speech Services"""
 
     def __init__(self):
-        load_dotenv()
 
         self.speech_key = st.secrets['SPEECH_API_KEY']
         self.speech_region = st.secrets['SPEECH_REGION']
-
-        if not self.speech_key or not self.speech_region:
-            raise ValueError(
-                "Azure Speech credentials not found in environment")
 
         try:
             self.speech_config = speechsdk.SpeechConfig(
