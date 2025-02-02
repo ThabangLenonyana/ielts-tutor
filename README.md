@@ -18,7 +18,7 @@ Welcome to the IELTS Speaking Test Simulator, a real-time application designed t
 
 ## System Architecture
 
-![System Architecture](docs/System_Architecture.svg)
+![System Architecture](docs/diagrams/System_Architecture.svg)
 
 **Components:**
 
