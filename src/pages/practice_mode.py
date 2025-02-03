@@ -1,10 +1,10 @@
 import streamlit as st
-from streamlit.components.v1 import components
 from components.practice.session_state import init_session_state
 from components.practice.topic_selector import render_topic_selector
 from components.practice.recording_interface import render_recording_interface
 from components.practice.chat_interface import render_chat_interface
 from components.practice.feedback_display import render_feedback_modal
+from components.practice.navigation import render_navigation_buttons
 
 
 @st.dialog("Response Feedback", width='large')
@@ -13,26 +13,22 @@ def show_feedback_dialog():
     if st.session_state.feedback:
         render_feedback_modal(st.session_state.feedback)
 
-        # Clear the modal trigger if dialog is manually closed
-        if not st.session_state.get('show_feedback_modal'):
-            st.session_state.feedback = None
-            st.session_state.evaluation_complete = False
-            st.session_state.is_recording = False
-            st.rerun()
 
-
-def render_practice_mode():
-
+async def render_practice_mode():
+        
     # Initialize state
     init_session_state()
 
     # Main content
     if not st.session_state.practice_active:
-        render_topic_selector()
+        await render_topic_selector()
     else:
 
         render_chat_interface()
-        render_recording_interface()
+        await render_recording_interface()
+
+        # Add navigation buttons
+        await render_navigation_buttons()
 
         # Show feedback modal if triggered
         if st.session_state.get('show_feedback_modal'):
@@ -70,6 +66,8 @@ def end_practice_session() -> None:
         # Force page refresh
         st.rerun()
 
+@st.cache_resource
+def get_async_recording_interface():
+    return render_recording_interface()
 
-if __name__ == "__main__":
-    render_practice_mode()
+

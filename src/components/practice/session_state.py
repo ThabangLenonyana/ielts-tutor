@@ -1,52 +1,40 @@
 import streamlit as st
 from modules.practice_manager import PracticeModeManager
 
+def reset_turn_state():
+    """Reset all turn-specific state variables"""
+    st.session_state.audio_state = {
+        'processing': False,
+        'last_processed': None,
+        'recorded_audio': None
+    }
+    st.session_state.transcription = None
+    st.session_state.feedback = None
+    st.session_state.show_feedback_modal = False
+    st.session_state.turn_complete = False
+
+def advance_turn():
+    """Prepare for next turn"""
+    if st.session_state.get('show_feedback_modal'):
+        st.session_state.current_turn += 1
+        reset_turn_state()
+    else:
+        st.warning("Please complete the current question first")
 
 def init_session_state():
-    # Initialize practice manager if not exists
+    # Initialize practice manager
     if 'practice_manager' not in st.session_state:
         st.session_state.practice_manager = PracticeModeManager()
 
-    if 'audio_capture' not in st.session_state:
-        st.session_state.audio_capture = None
+    # Session-level state (persists across turns)
+    session_state = {
+        'practice_active': False,
+        'current_topic': None,
+        'conversation_history': [],
+        'current_turn': 0,
+        'current_question': None
+    }
 
-    if 'recording_state' not in st.session_state:
-        st.session_state.recording_state = {
-            'active': False,
-            'audio_capture': None,
-            'last_error': None
-        }
-
-    # Initialize all required state variables
-    if 'practice_active' not in st.session_state:
-        st.session_state.practice_active = False
-
-    if 'recording' not in st.session_state:
-        st.session_state.recording = False
-
-    if 'current_topic' not in st.session_state:
-        st.session_state.current_topic = None
-
-    if 'current_question' not in st.session_state:
-        st.session_state.current_question = None
-
-    if 'conversation_history' not in st.session_state:
-        st.session_state.conversation_history = []
-
-    if 'transcription' not in st.session_state:
-        st.session_state.transcription = None
-
-    if 'feedback' not in st.session_state:
-        st.session_state.feedback = None
-
-    if 'last_response' not in st.session_state:
-        st.session_state.last_response = None
-
-    if 'show_feedback_modal' not in st.session_state:
-        st.session_state.show_feedback_modal = False
-
-    if 'evaluation_complete' not in st.session_state:
-        st.session_state.evaluation_complete = False
-
-    if 'is_recording' not in st.session_state:
-        st.session_state.is_recording = False
+    for key, value in session_state.items():
+        if key not in st.session_state:
+            st.session_state[key] = value

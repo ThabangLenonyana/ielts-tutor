@@ -1,11 +1,12 @@
 import streamlit as st
+import asyncio
 from pages.practice_mode import render_practice_mode
 from components.test_mode.test_mode import _render_test_mode
 from components.practice.sidebar import create_sidebar
 from components.practice.session_state import init_session_state
 
 
-def main():
+async def main():
     check_secrets()
     # Initialize session state
     init_session_state()
@@ -14,10 +15,10 @@ def main():
     create_sidebar()
 
     # Create main UI
-    create_main_ui()
+    await create_main_ui()
 
 
-def create_main_ui():
+async def create_main_ui():
     """Create the main UI based on selected mode"""
 
     st.title("IELTS Speaking Test Simulator")
@@ -26,7 +27,7 @@ def create_main_ui():
     init_session_state()
 
     if st.session_state['mode'] == 'practice':
-        render_practice_mode()
+        await render_practice_mode()
     else:
         _render_test_mode()
 
@@ -47,6 +48,8 @@ def check_secrets():
         st.error(f"Missing required secrets: {', '.join(missing_secrets)}")
         st.stop()
 
+def run():
+    asyncio.run(main())
 
 if __name__ == "__main__":
-    main()
+    run()

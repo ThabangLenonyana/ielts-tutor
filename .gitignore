@@ -4,3 +4,4 @@ config/
 __pycache__/
 src/.pytest_cache/
 src/.streamlit/secrets.toml
+logs.txt

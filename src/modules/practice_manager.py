@@ -1,9 +1,10 @@
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 from .speech_to_text import SpeechToText
-from .audio_capture import AudioCapture
 from .question_generator import QuestionGenerator
 from .scoring import ScoringEngine
-import numpy as np
+import logging
+import wave
+import asyncio
 
 
 class PracticeModeManager:
@@ -11,11 +12,11 @@ class PracticeModeManager:
 
     def __init__(self):
         self.speech_to_text = SpeechToText()
-        self.audio_capture = AudioCapture()
         self.question_generator = QuestionGenerator()
         self.scoring_engine = ScoringEngine()
-
         self.session_state = self._get_default_session_state()
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
     def _get_default_session_state(self) -> Dict:
         """Initialize default session state with all required fields"""
@@ -45,61 +46,70 @@ class PracticeModeManager:
             print(f"Error starting session: {str(e)}")
             return False
 
-    def get_next_question(self) -> Tuple[bool, str]:
+    async def get_next_question(self) -> Tuple[bool, str]:
         """Generate next question based on topic and conversation history"""
         try:
             if not self.session_state or not self.session_state.get('active'):
+                logging.error("No active session in get_next_question")
                 return False, "No active session"
 
             # Get context from previous exchanges
             context = {
                 'topic': self.session_state['current_topic'],
                 'difficulty': self.session_state['current_difficulty'],
-                'history': self.session_state['conversation_history'][-3:] if self.session_state['conversation_history'] else []
+                'history': self.session_state.get('conversation_history', [])[-3:]
             }
 
-            success, question = self.question_generator.generate_question(
+            success, question = await self.question_generator.generate_question(
                 context)
+            logging.info(f"Generated question: {question}")
             if success:
+                self.session_state['current_question'] = question
                 return True, question
+            
+            logging.error(f"Question generation failed: {question}")
             return False, f"Failed to generate question"
+        
         except Exception as e:
             return False, f"Error generating question: {str(e)}"
 
-    def handle_response(self, audio_data: np.ndarray) -> Tuple[bool, Dict]:
+    async def handle_response(self, audio_file: bytes) -> Tuple[bool, Dict]:
         """Process user's spoken response"""
+            
         try:
-            print(
-                f"DEBUG: Handling response - Audio shape: {audio_data.shape}")
+            if not hasattr(audio_file, 'read'):
+                return False, {"error": "Invalid audio file"}
+            
+            original_position = audio_file.tell()
 
-            # Transcribe audio
-            print("DEBUG: Starting transcription...")
-            success, text = self.speech_to_text.transcribe_audio(audio_data)
-            print(
-                f"DEBUG: Transcription result: {success}, {text[:30] if success else 'Failed'}")
-
+            self.logger.info("Starting transcription...")
+            success, text = self.speech_to_text.transcribe_audio(audio_file)
+            
             if not success:
+                self.logger.error(f"Transcription failed: {text}")
                 return False, {"error": "Failed to transcribe audio"}
+            
 
-            # Generate feedback
-            audio_duration = len(audio_data) / self.audio_capture.sample_rate
-            evaluation = self.scoring_engine.evaluate_response(
-                text, audio_duration)
+            # reset position for duration calculation
+            audio_file.seek(original_position)
 
-            # Update session state
-            self.session_state['questions_answered'] += 1
-            self.session_state['conversation_history'].append({
-                'question': self.session_state.get('current_question', "Unknown"),
-                'response': text,
-                'feedback': evaluation
-            })
+            # Get audio duration from file
+            with wave.open(audio_file, 'rb') as wav_file:
+                frames = wav_file.getnframes()
+                rate = wav_file.getframerate()
+                audio_duration = frames / float(rate)
+
+
+            evaluation = await self.scoring_engine.evaluate_response(text, audio_duration)
 
             return True, {
                 'transcription': text,
                 'evaluation': evaluation,
                 'audio_duration': audio_duration
             }
+
         except Exception as e:
+            self.logger.error(f"Error in handle_response: {str(e)}")
             return False, {"error": str(e)}
 
     def get_session_summary(self) -> Dict:

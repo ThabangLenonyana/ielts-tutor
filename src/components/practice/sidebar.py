@@ -1,5 +1,4 @@
 import streamlit as st
-import sounddevice as sd
 
 
 def create_sidebar():
@@ -23,15 +22,6 @@ def create_sidebar():
         # Settings section
         st.subheader("Settings")
 
-        # Microphone input selection if multiple devices
-        devices = sd.query_devices()
-        input_devices = [device['name']
-                         for device in devices if device['max_input_channels'] > 0]
-        audio_input = st.selectbox(
-            "Select Microphone",
-            input_devices,
-            index=0
-        )
 
         # Language preference for feedback (optional)
         feedback_lang = st.selectbox(

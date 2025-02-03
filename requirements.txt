@@ -1,9 +1,10 @@
 streamlit
 azure-cognitiveservices-speech
 openai
-sounddevice
 numpy
 pandas
 matplotlib
 fpdf
 python-dotenv
+asyncio
+aiohttp

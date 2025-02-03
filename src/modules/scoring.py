@@ -4,6 +4,8 @@ from openai import AzureOpenAI
 import os
 from dotenv import load_dotenv
 import time
+import datetime
+import asyncio
 
 
 class ScoringEngine:
@@ -17,6 +19,13 @@ class ScoringEngine:
             azure_endpoint=os.getenv('MODEL_URI'),
             api_version='2024-08-01-preview'
         )
+
+        self.requests_per_minute = 60
+        self.last_request_time = {}
+        self.min_request_interval = 1.0
+
+        self.rate_limiter = RequestRateLimiter(self.requests_per_minute)
+
 
         # Define weights for each scoring criterion
         self.criteria_weights = {
@@ -34,9 +43,11 @@ class ScoringEngine:
             'Pronunciation': 'pronunciation'
         }
 
-    def evaluate_response(self, response: str, audio_duration: float) -> Dict:
+    async def evaluate_response(self, response: str, audio_duration: float) -> Dict:
         """Evaluate a response across all IELTS criteria"""
         try:
+            await self.rate_limiter.wait_if_needed()
+
             # Create prompt for scoring the response
             scoring_prompt = f"""
             Analyze the following IELTS speaking response:
@@ -206,12 +217,21 @@ class ScoringEngine:
 
         return self._get_llm_analysis(prompt)
 
-    def _get_llm_analysis(self, prompt: str, max_retries: int = 3) -> float:
+    async def _get_llm_analysis(self, prompt: str, max_retries: int = 3) -> float:
         """Get analysis from Azure OpenAI with retry logic"""
         for attempt in range(max_retries):
             try:
-                time.sleep(attempt * 2)  # Exponential backoff
-                response = self.client.chat.completions.create(
+                # Add rate limiting check
+                now = datetime.now()
+                if 'analysis' in self.last_request_time:
+                    time_since_last = (now - self.last_request_time['analysis']).total_seconds()
+                    if time_since_last < self.min_request_interval:
+                        await asyncio.sleep(self.min_request_interval - time_since_last)
+
+                # Update last request time
+                self.last_request_time['analysis'] = datetime.now()
+
+                response = await self.client.chat.completions.create(
                     model='gpt-4o-mini',
                     messages=[
                         {"role": "system", "content": "You are an IELTS examiner expert."},
@@ -222,6 +242,7 @@ class ScoringEngine:
                 return self._extract_score_from_analysis(response.choices[0].message.content)
             except Exception as e:
                 if 'rate_limit' in str(e).lower() and attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
                     continue
                 print(f"Error in LLM analysis (attempt {attempt+1}): {str(e)}")
                 return 5.0
@@ -302,3 +323,22 @@ class ScoringEngine:
 
     def _generate_pronunciation_feedback(self, response: str, score: float) -> Dict:
         return self._generate_feedback('pronunciation', score, response)
+
+class RequestRateLimiter:
+    def __init__(self, requests_per_minute):
+        self.requests_per_minute = requests_per_minute
+        self.request_times = []
+        self.min_interval = 60.0 / requests_per_minute
+
+    async def wait_if_needed(self):
+        now = datetime.datetime.now()
+        # Remove old requests from history
+        self.request_times = [t for t in self.request_times if (now - t).total_seconds() < 60]
+        
+        if len(self.request_times) >= self.requests_per_minute:
+            oldest = min(self.request_times)
+            wait_time = 60 - (now - oldest).total_seconds()
+            if wait_time > 0:
+                await asyncio.sleep(wait_time)
+        
+        self.request_times.append(now)

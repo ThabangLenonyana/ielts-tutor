@@ -2,6 +2,8 @@ import os
 from openai import AzureOpenAI
 from dotenv import load_dotenv
 from typing import Dict, Tuple
+import asyncio
+from datetime import datetime
 
 import streamlit as st
 
@@ -16,6 +18,9 @@ class QuestionGenerator():
         self.api_key = st.secrets['AZURE_API_KEY']
         self.endpoint = st.secrets['MODEL_URI']
 
+        self.last_request_time = None
+        self.min_request_interval = 1.0  # Minimum interval between requests in seconds
+
         if not self.api_key or not self.endpoint:
             raise ValueError(
                 "Azure OpenAI credentials not found in environment")
@@ -27,9 +32,19 @@ class QuestionGenerator():
             api_version='2024-08-01-preview'
         )
 
-    def generate_question(self, context: Dict) -> Tuple[bool, str]:
+    async def generate_question(self, context: Dict) -> Tuple[bool, str]:
         """Generate a contextually appropriate IELTS question"""
         try:
+            # Rate limiting check
+            now = datetime.now()
+            if self.last_request_time:
+                time_since_last = (now - self.last_request_time).total_seconds()
+                if time_since_last < self.min_request_interval:
+                    await asyncio.sleep(self.min_request_interval - time_since_last)
+            
+            # Update last request time
+            self.last_request_time = now
+
             # Extract context information
             topic = context.get('topic', '')
             difficulty = context.get('difficulty', 1.0)
