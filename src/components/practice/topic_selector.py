@@ -3,26 +3,72 @@ from components.practice.session_state import reset_turn_state
 
 
 async def render_topic_selector():
-    st.title("IELTS Speaking Practice")
     st.subheader("Select a Topic")
 
+    # Add custom CSS for consistent button sizing
+    st.markdown("""
+        <style>
+        .topic-button {
+            min-height: 80px;
+            height: 100%;
+            white-space: normal;
+            position: relative;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     topics = {
-        "Work": "💼",
-        "Education": "📚",
-        "Technology": "💻",
-        "Environment": "🌍",
-        "Travel": "✈️",
-        "Health": "🏥",
-        "Culture": "🎨",
-        "Food": "🍔",
-        "Sports": "⚽",
+        "Work": {
+            "emoji": "💼",
+            "description": "Career, workplace, and professional life topics"
+        },
+        "Education": {
+            "emoji": "📚",
+            "description": "Learning, schools, and academic subjects"
+        },
+        "Technology": {
+            "emoji": "💻",
+            "description": "Digital innovation, gadgets, and modern tech"
+        },
+        "Environment": {
+            "emoji": "🌍",
+            "description": "Nature, climate change, and sustainability"
+        },
+        "Travel": {
+            "emoji": "✈️",
+            "description": "Tourism, destinations, and cultural experiences"
+        },
+        "Health": {
+            "emoji": "🏥",
+            "description": "Wellness, medical care, and lifestyle"
+        },
+        "Culture": {
+            "emoji": "🎨",
+            "description": "Arts, traditions, and social customs"
+        },
+        "Food": {
+            "emoji": "🍔",
+            "description": "Cuisine, cooking, and dining habits"
+        },
+        "Sports": {
+            "emoji": "⚽",
+            "description": "Athletics, games, and physical activities"
+        },
     }
 
     cols = st.columns(3)
-    for idx, (topic, emoji) in enumerate(topics.items()):
+    for idx, (topic, info) in enumerate(topics.items()):
         with cols[idx % 3]:
-            if st.button(f"{emoji} {topic}", key=f"topic_{idx}", use_container_width=True):
+            button_label = f"{info['emoji']} {topic}"
+            help_text = info['description']
+            if st.button(
+                button_label, 
+                key=f"topic_{idx}", 
+                help=help_text,
+                use_container_width=True
+            ):
                 await start_practice_session(topic)
+
 
 
 async def start_practice_session(topic):

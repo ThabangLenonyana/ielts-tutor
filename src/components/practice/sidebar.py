@@ -2,26 +2,12 @@ import streamlit as st
 
 
 def create_sidebar():
-    """Create the sidebar with mode selection and settings"""
-
+    """Create the sidebar with settings only"""
     with st.sidebar:
         st.title("IELTS Speaking Test")
-
-        # Mode selection
-        mode = st.radio(
-            "Select Mode",
-            ["Practice Mode", "Test Mode"],
-            help="Practice Mode provides instant feedback. Test Mode simulates the full IELTS Speaking Test."
-        )
-
-        # Update session state
-        st.session_state['mode'] = mode.lower().replace(" mode", "")
-
-        st.divider()
-
+        
         # Settings section
         st.subheader("Settings")
-
 
         # Language preference for feedback (optional)
         feedback_lang = st.selectbox(
