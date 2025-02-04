@@ -94,3 +94,8 @@ def check_secrets():
     if missing_secrets:
         st.error(f"Missing required secrets: {', '.join(missing_secrets)}")
         st.stop()
+
+
+
+if __name__ == "__main__":
+    main()
