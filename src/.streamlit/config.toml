@@ -1,0 +1,2 @@
+[server]
+mainModule = "src/Home.py"
