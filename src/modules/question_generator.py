@@ -15,7 +15,7 @@ class QuestionGenerator():
         load_dotenv()
 
         # Load Azure OpenAI credentials
-        self.api_key = st.secrets['AZURE_API_KEY']
+        self.api_key = 's2if5UrQi83Ttx9B4YukhIjTNMsx1DQL3DhSJTsEvGp1g44V714LdJQQJ99BCACYeBjFXJ3w3AAABACOGeFBW'
         self.endpoint = 'https://kdube-m8h69gib-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini"'
 
         self.last_request_time = None
