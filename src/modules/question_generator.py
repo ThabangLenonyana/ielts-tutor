@@ -16,7 +16,7 @@ class QuestionGenerator():
 
         # Load Azure OpenAI credentials
         self.api_key = 's5gW3JO5bGhUoji7AC4jdAmvE5nDnCGPHip9JrijFSP3sJNy9zoEFJQQJ99BCACYeBjFXJ3w3AAABACOGr6ep'
-        self.endpoint = 'https://ielts-tutor.openai.azure.com/'
+        self.endpoint = 'https://kdube-m8h69gib-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview'
 
         self.last_request_time = None
         self.min_request_interval = 1.0  # Minimum interval between requests in seconds
