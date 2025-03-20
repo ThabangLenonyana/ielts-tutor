@@ -29,7 +29,7 @@ class QuestionGenerator():
         self.client = AzureOpenAI(
             api_key=self.api_key,
             azure_endpoint=self.endpoint,
-            api_version='2024-08-01-preview'
+            api_version='2024-12-01-preview'
         )
 
     async def generate_question(self, context: Dict) -> Tuple[bool, str]:
