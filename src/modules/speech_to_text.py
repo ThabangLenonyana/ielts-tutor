@@ -12,8 +12,8 @@ class SpeechToText:
 
     def __init__(self):
 
-        self.speech_key = st.secrets['SPEECH_API_KEY']
-        self.speech_region = st.secrets['SPEECH_REGION']
+        self.speech_key = 'B2iQAgBkwWi57F5UhDbtCIzsaIszhmuKc00D75G7d7V0aGlAp4fIJQQJ99BCACYeBjFXJ3w3AAAYACOGfofL'
+        self.speech_region = 'eastus'
         self.logger = logging.getLogger(__name__)
 
         try:
