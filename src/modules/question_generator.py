@@ -16,7 +16,7 @@ class QuestionGenerator():
 
         # Load Azure OpenAI credentials
         self.api_key = st.secrets['AZURE_API_KEY']
-        self.endpoint = st.secrets['MODEL_URI']
+        self.endpoint = 'https://kdube-m8h69gib-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini"'
 
         self.last_request_time = None
         self.min_request_interval = 1.0  # Minimum interval between requests in seconds
