@@ -15,9 +15,9 @@ class ScoringEngine:
         load_dotenv()
         # Initialize Azure OpenAI client
         self.client = AzureOpenAI(
-            api_key=os.getenv('MODEL_API_KEY'),
-            azure_endpoint=os.getenv('MODEL_URI'),
-            api_version='2024-08-01-preview'
+            api_key='DaONNemP3XA2BKtvLbGFj1JzgeU1l3Ds0bhuAQgvoQ4XMNqI8RqmJQQJ99BCACHYHv6XJ3w3AAAAACOGD0gz',
+            azure_endpoint='https://kdube-m8h69gib-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview',
+            api_version='2024-12-01-preview'
         )
 
         self.requests_per_minute = 60
