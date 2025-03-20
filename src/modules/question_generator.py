@@ -15,7 +15,7 @@ class QuestionGenerator():
         load_dotenv()
 
         # Load Azure OpenAI credentials
-        self.api_key = 's5gW3JO5bGhUoji7AC4jdAmvE5nDnCGPHip9JrijFSP3sJNy9zoEFJQQJ99BCACYeBjFXJ3w3AAABACOGr6ep'
+        self.api_key = 'DaONNemP3XA2BKtvLbGFj1JzgeU1l3Ds0bhuAQgvoQ4XMNqI8RqmJQQJ99BCACHYHv6XJ3w3AAAAACOGD0gz'
         self.endpoint = 'https://kdube-m8h69gib-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview'
 
         self.last_request_time = None
