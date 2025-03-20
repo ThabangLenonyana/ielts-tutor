@@ -15,7 +15,7 @@ class QuestionGenerator():
         load_dotenv()
 
         # Load Azure OpenAI credentials
-        self.api_key = 's2if5UrQi83Ttx9B4YukhIjTNMsx1DQL3DhSJTsEvGp1g44V714LdJQQJ99BCACYeBjFXJ3w3AAABACOGeFBW'
+        self.api_key = 's5gW3JO5bGhUoji7AC4jdAmvE5nDnCGPHip9JrijFSP3sJNy9zoEFJQQJ99BCACYeBjFXJ3w3AAABACOGr6ep'
         self.endpoint = 'https://ielts-tutor.openai.azure.com/'
 
         self.last_request_time = None
